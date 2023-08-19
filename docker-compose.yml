@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  database:
+    container_name: wine-app-database
+    environment:
+      - POSTGRES_DB=wine-app
+      - POSTGRES_USER=wine-app
+      - POSTGRES_PASSWORD=wine-app
+    image: postgres:15.2
+    ports:
+      - "5433:5432"
+    volumes:
+      - wine-app-database:/var/lib/postgresql/data
+
+  server:
+    build:
+      context: ./server
+    container_name: wine-app-server
+    depends_on:
+      - database
+    environment:
+      - SQL_ENGINE=django.db.backends.postgresql
+      - SQL_DATABASE=wine-app
+      - SQL_USER=wine-app
+      - SQL_PASSWORD=wine-app
+      - SQL_HOST=wine-app-database
+      - SQL_PORT=5432
+    command: ["bash", "start.sh"]
+    ports:
+      - 8003:8000
+    volumes:
+      - ./server:/usr/src/app
+
+volumes:
+  wine-app-database:
